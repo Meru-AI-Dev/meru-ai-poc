@@ -12,6 +12,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_vertexai import ChatVertexAI
 
 ################################################################################
 ############### Environment Variables & Secrets ################################
@@ -210,10 +211,14 @@ try:
                         if text_body == None:
                             continue
 
-                        genai = ChatGoogleGenerativeAI(model="gemini-pro")
-                        result = genai.invoke(option[2] + text_body)
-
-                        generated_email = result.content
+                        if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+                            palm = ChatVertexAI(model_name="chat-bison")
+                            message = palm.invoke(option[2] + text_body)
+                            generated_email = message.content
+                        else:
+                            genai = ChatGoogleGenerativeAI(model="gemini-pro")
+                            result = genai.invoke(option[2] + text_body)
+                            generated_email = result.content
 
                         try:
 
